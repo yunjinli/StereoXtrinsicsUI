@@ -49,9 +49,11 @@ w1: 224
 ```
 
 ## Demo
+Demo on the UI. Note that this example takes quite unusual camera mounting setup (90 degree offset and almost 7cm offset for the baseline). By using the UI, we can still get the correct extrisics easily. 
 
 https://github.com/user-attachments/assets/3c807531-1c99-4d29-b73a-3dcdb802af7b
 
 ## Results in Rviz
+By using the calibrated extrinsic to colorized the point cloud produced by PMD Flexx2 ToF Camera with RGB colors from Intel Realsense D415.
 
 https://github.com/user-attachments/assets/023702e4-18d4-4df7-a245-437849693df9
