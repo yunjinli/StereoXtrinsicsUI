@@ -50,8 +50,8 @@ w1: 224
 
 ## Demo
 
-https://github.com/yunjinli/StereoXtrinsicsUI/issues/1#issuecomment-3403858544
+https://github.com/user-attachments/assets/3c807531-1c99-4d29-b73a-3dcdb802af7b
 
 ## Results in Rviz
 
-https://github.com/yunjinli/StereoXtrinsicsUI/issues/1#issue-3515743023
+https://github.com/user-attachments/assets/023702e4-18d4-4df7-a245-437849693df9
