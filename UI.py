@@ -201,7 +201,14 @@ class CalibrationUI(tk.Tk):
         super().__init__()
         self.title("StereoXtrinsicsUI")
         self.geometry(f"{GUI_W}x{GUI_H}")
+        self.GUI_W = GUI_W
+        self.GUI_H = GUI_H
         
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=2)
+
         image_path_0 = glob.glob(os.path.join(img_path, 'cam0/*.png'))
         image_path_1 = glob.glob(os.path.join(img_path, 'cam1/*.png'))
         self.image_pairs = list(zip(sorted(image_path_0), sorted(image_path_1)))
@@ -251,49 +258,79 @@ class CalibrationUI(tk.Tk):
             self.mapx1, self.mapy1 = cv2.initUndistortRectifyMap(self.K1, self.D1, None, self.K1, (self.w1,self.h1), m1type=cv2.CV_16SC2)
             self.D0 = np.zeros_like(self.D0)
             self.D1 = np.zeros_like(self.D1)
-            
-        # Top controls
-        top = tk.Frame(self, pady=6)
-        top.pack(side=tk.TOP, fill=tk.X)
-        self.next_frame_btn = tk.Button(top, text="Next Frame ▶", command=self.next_frame)
-        self.next_frame_btn.pack(side=tk.LEFT, padx=12)
 
-        self.detect_corners_btn = tk.Button(top, text="Detect Corners", command=self.detect_corners)
-        self.detect_corners_btn.pack(side=tk.LEFT, padx=12)
+        top = tk.Frame(self)
+        left = tk.Frame(self)
+        right = tk.Frame(self)
+        
+        top.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=6, pady=6)
+        left.grid(row=1, column=0, sticky="nsew", padx=6, pady=6)
+        right.grid(row=1, column=1, sticky="nsew", padx=6, pady=6)
+
+        # Top controls
+        # top = tk.Frame(left, pady=6)
+        # top.pack(side=tk.TOP, fill=tk.X)
+        self.next_frame_btn = tk.Button(top, text="Next Frame ▶", command=self.next_frame)
+        self.next_frame_btn.pack(side=tk.LEFT, padx=0)
+
+        # self.detect_corners_btn = tk.Button(top, text="Detect Corners", command=self.detect_corners)
+        # self.detect_corners_btn.pack(side=tk.LEFT, padx=12)
 
         self.toggle_corners_btn = tk.Button(top, text="Toggle Corners", command=self.toggle_corners)
-        self.toggle_corners_btn.pack(side=tk.LEFT, padx=12)
+        self.toggle_corners_btn.pack(side=tk.LEFT, padx=0)
 
         self.add_btn = tk.Button(top, text="Add", command=self.add)
-        self.add_btn.pack(side=tk.LEFT, padx=12)
+        self.add_btn.pack(side=tk.LEFT, padx=0)
 
         self.calibrate_btn = tk.Button(top, text="Calibrate", command=self.calibrate)
-        self.calibrate_btn.pack(side=tk.LEFT, padx=12)
+        self.calibrate_btn.pack(side=tk.LEFT, padx=0)
         
         self.save_btn = tk.Button(top, text="Save", command=self.save_calib)
-        self.save_btn.pack(side=tk.LEFT, padx=12)
+        self.save_btn.pack(side=tk.LEFT, padx=0)
 
         
         
         # Add OpenGL panel on the right side
-        right_frame = tk.Frame(self)
-        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+        # right_frame = tk.Frame(right)
+        # right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
         tk.Label(
-            right_frame,
+            # right_frame,
+            right,
             text=f"Coordinate Frame View",
         ).pack(anchor="center", pady=(0,8))
-        self.gl = GLPanel(right_frame, width=500, height=500)
+        
+        self.max_height = self.GUI_H // 4
+        scale0 = self.max_height / self.h0
+        scale1 = self.max_height / self.h1
+        
+        resized_w0 = self.w0 * scale0
+        resized_w1 = self.w1 * scale1
+        
+        gl_viewer_w = self.GUI_W - resized_w0 - resized_w1
+        # gl_viewer_w = resized_w0 + resized_w1
+        # self.gl = GLPanel(right_frame, width=gl_viewer_w - 100, height=self.max_height)
+        self.gl = GLPanel(right, width=gl_viewer_w, height=int(self.GUI_H * 0.8))
         self.gl.pack(fill=tk.BOTH, expand=True)
         # Add buttons to switch view to C0 or C1
-        self.view_c0_btn = tk.Button(top, text="View from C0", command=lambda: self.gl.set_view_to_camera(self.gl.T_w_cam0))
-        self.view_c0_btn.pack(side=tk.LEFT, padx=12)
-        self.view_c1_btn = tk.Button(top, text="View from C1", command=lambda: self.gl.set_view_to_camera(self.gl.T_w_cam1))
-        self.view_c1_btn.pack(side=tk.LEFT, padx=12)
-        self.reset_view_btn = tk.Button(top, text="Reset View", command=self.gl.reset_view)
-        self.reset_view_btn.pack(side=tk.LEFT, padx=12)
+        # self.view_c0_btn = tk.Button(top, text="View from C0", command=lambda: self.gl.set_view_to_camera(self.gl.T_w_cam0))
+        # self.view_c0_btn.pack(side=tk.LEFT, padx=12)
+        # self.view_c1_btn = tk.Button(top, text="View from C1", command=lambda: self.gl.set_view_to_camera(self.gl.T_w_cam1))
+        # self.view_c1_btn.pack(side=tk.LEFT, padx=12)
+        # self.reset_view_btn = tk.Button(top, text="Reset View", command=self.gl.reset_view)
+        # self.reset_view_btn.pack(side=tk.LEFT, padx=12)
+        
+        self.fix_view_on_c0 = tk.BooleanVar(value=False)
+        self.view_c0_toggle_checkbtn = tk.Checkbutton(top, text="View from C0", variable=self.fix_view_on_c0, command=self.on_toggle_view_c0)
+        self.view_c0_toggle_checkbtn.pack(side=tk.LEFT, padx=0)
+        
+        self.fix_view_on_c1 = tk.BooleanVar(value=False)
+        self.view_c1_toggle_checkbtn = tk.Checkbutton(top, text="View from C1", variable=self.fix_view_on_c1, command=self.on_toggle_view_c1)
+        self.view_c1_toggle_checkbtn.pack(side=tk.LEFT, padx=0)
+        
         
         # Place label below the buttons, centered
-        label_frame = tk.Frame(self)
+        # label_frame = tk.Frame(top)
+        label_frame = tk.Frame(left)
         label_frame.pack(side=tk.TOP, fill=tk.X)
         
         self.header_raw_images_panel = tk.Label(
@@ -306,14 +343,17 @@ class CalibrationUI(tk.Tk):
         
         
         
-        self.image_label = tk.Label(self, image=None)
+        # self.image_label = tk.Label(top, image=None)
+        self.image_label = tk.Label(left, image=None)
         self.image_label.image = None  # Keep a reference!
         self.image_label.pack(anchor='nw', expand=True)
         # ttk.Separator(top, orient="horizontal").pack(fill="x", pady=8)
-        mid = tk.Frame(self, pady=6)
+        # mid = tk.Frame(top, pady=6)
+        mid = tk.Frame(left, pady=6)
         mid.pack(side=tk.TOP, fill=tk.X)
         
-        label_frame_added_images = tk.Frame(self)
+        # label_frame_added_images = tk.Frame(top)
+        label_frame_added_images = tk.Frame(left)
         label_frame_added_images.pack(side=tk.TOP, fill=tk.X)
         self.header_added_images_panel = tk.Label(
             label_frame_added_images,
@@ -322,18 +362,19 @@ class CalibrationUI(tk.Tk):
         )
         self.header_added_images_panel.pack(anchor="center", pady=(0,8))
         
-        self.image_added_label = tk.Label(self, image=None)
+        # self.image_added_label = tk.Label(top, image=None)
+        self.image_added_label = tk.Label(left, image=None)
         self.image_added_label.image = None  # Keep a reference!
         self.image_added_label.pack(anchor="nw", expand=True)
             
         self.prev_added_frame_btn = tk.Button(mid, text="Left", command=self.prev_added_frame)
-        self.prev_added_frame_btn.pack(side=tk.LEFT, padx=12)
+        self.prev_added_frame_btn.pack(side=tk.LEFT, padx=0)
         
         self.next_added_frame_btn = tk.Button(mid, text="Right", command=self.next_added_frame)
-        self.next_added_frame_btn.pack(side=tk.LEFT, padx=12)
+        self.next_added_frame_btn.pack(side=tk.LEFT, padx=0)
         
         self.delete_added_frame_btn = tk.Button(mid, text="Delete", command=self.delete_added_frame)
-        self.delete_added_frame_btn.pack(side=tk.LEFT, padx=12)
+        self.delete_added_frame_btn.pack(side=tk.LEFT, padx=0)
         
         self.disply_added_frame_id = 0
         
@@ -352,6 +393,16 @@ class CalibrationUI(tk.Tk):
         
         self.objp3d_vis = None
     
+    def on_toggle_view_c0(self):
+        if self.fix_view_on_c0.get():              # toggled ON
+            self.gl.set_view_to_camera(self.gl.T_w_cam0)
+        self.fix_view_on_c1.set(False)
+        
+    def on_toggle_view_c1(self):
+        if self.fix_view_on_c1.get():              # toggled ON
+            self.gl.set_view_to_camera(self.gl.T_w_cam1)
+        self.fix_view_on_c0.set(False)
+        
     def save_calib(self):
         if not self.is_calibrated:
             messagebox.showerror("Error", "Please calibrate before saving.")
@@ -392,6 +443,7 @@ class CalibrationUI(tk.Tk):
             self.gl.objp = None
             self.gl.T_w_cam0 = None
             self.gl.T_w_cam1 = None
+            
             self.gl.redraw()
             return
         
@@ -473,11 +525,17 @@ class CalibrationUI(tk.Tk):
             rms1 = np.sqrt(np.mean(err1 ** 2))
             print(f"RMS reprojection error (cam0): {rms0:.3f} px, (cam1): {rms1:.3f} px")
             
-        max_height = 400
+        max_height = self.max_height
         scale0 = max_height / img0.shape[0]
         scale1 = max_height / img1.shape[0]
         img0 = cv2.resize(img0, (int(img0.shape[1] * scale0), max_height))
         img1 = cv2.resize(img1, (int(img1.shape[1] * scale1), max_height))
+        
+        # max_width = self.GUI_W // 3
+        # scale0 = max_width / img0.shape[1]
+        # scale1 = max_width / img1.shape[1]
+        # img0 = cv2.resize(img0, (max_width, int(img0.shape[0] * scale0)))
+        # img1 = cv2.resize(img1, (max_width, int(img1.shape[0] * scale1)))
         
         # img0 = cv2.cvtColor(img0, cv2.COLOR_GRAY2BGR)
         # img1 = cv2.cvtColor(img1, cv2.COLOR_GRAY2BGR)
@@ -498,6 +556,10 @@ class CalibrationUI(tk.Tk):
             self.image_added_label.image = photo  # Keep a reference!
             self.image_added_label.pack(side=tk.TOP, expand=True)
         
+        if self.fix_view_on_c0.get():             
+            self.gl.set_view_to_camera(self.gl.T_w_cam0)
+        if self.fix_view_on_c1.get():             
+            self.gl.set_view_to_camera(self.gl.T_w_cam1)
         self.gl.redraw()
     def calibrate(self):
         print("Calibrating...")
@@ -588,19 +650,26 @@ class CalibrationUI(tk.Tk):
         # print(self.img0.shape)
         # print(self.img1.shape)
         
-        self.header_raw_images_panel.configure(text=f"Raw Image Pairs {img_path_0} | {img_path_1} ({self.index} / {len(self.image_pairs)})")
+        self.header_raw_images_panel.configure(text=f"Raw Image Pairs {img_path_0.split('/')[-2:][0]}/{img_path_0.split('/')[-2:][1]} | {img_path_1.split('/')[-2:][0]}/{img_path_1.split('/')[-2:][1]})")
         self.detect_corners()
         self.render()
         
     def render(self):
         # Resize images to fit in the window if necessary
-        max_height = 400
+        # max_height = 400
+        max_height = self.max_height
         img0 = self.img0
         img1 = self.img1
         scale0 = max_height / img0.shape[0]
         scale1 = max_height / img1.shape[0]
         img0 = cv2.resize(img0, (int(img0.shape[1] * scale0), max_height))
         img1 = cv2.resize(img1, (int(img1.shape[1] * scale1), max_height))
+        
+        # max_width = self.GUI_W // 3
+        # scale0 = max_width / img0.shape[1]
+        # scale1 = max_width / img1.shape[1]
+        # img0 = cv2.resize(img0, (max_width, int(img0.shape[0] * scale0)))
+        # img1 = cv2.resize(img1, (max_width, int(img1.shape[0] * scale1)))
         
         # img0 = cv2.cvtColor(img0, cv2.COLOR_GRAY2BGR)
         # img1 = cv2.cvtColor(img1, cv2.COLOR_GRAY2BGR)
@@ -639,13 +708,13 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--width", "-W",
-        default=1800,
+        default=1920,
         type=int,
         help="GUI window width (overrides YAML)"
     )
     parser.add_argument(
         "--height", "-H",
-        default=1200,
+        default=1080,
         type=int,
         help="GUI window height (overrides YAML)"
     )
@@ -664,7 +733,7 @@ if __name__ == "__main__":
         except yaml.YAMLError as e:
             print(f"Failed to parse YAML: {e}", file=sys.stderr)
             sys.exit(1)
-            
+    
     config['GUI_W'] = args.width
     config['GUI_H'] = args.height
     
