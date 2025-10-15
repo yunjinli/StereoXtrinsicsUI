@@ -16,11 +16,15 @@ pip install -r requirements.txt
 
 ## Run
 
-```bash
-python UI.py -W 1920 -H 1080 --config ./config/default.yaml
-```
+### Intrinsics
 
-## Configuration
+The UI assume the intrinsics for both cameras are known. You can use some tools like [this](https://docs.ros.org/en/kilted/p/camera_calibration/doc/tutorial_stereo.html) to get their intrinsics first.
+
+### Data Preparation
+
+Please save image pairs to `</path/to/imagepairs>/cam0/` and `</path/to/imagepairs>/cam1/` and make sure that the pairs are synchronized. You can also use my ROS2 [package](https://github.com/yunjinli/data_pipeline) to do so.
+
+### Prepare Configuration
 
 ```yaml
 img_path: /home/yunjinli/camera_calibration/rel_calib_images/2 ## base path contraining cam0/* and cam1/*
@@ -48,12 +52,20 @@ h1: 172
 w1: 224
 ```
 
+### Run
+
+```bash
+python UI.py -W 1920 -H 1080 --config ./config/default.yaml
+```
+
 ## Demo
-Demo on the UI. Note that this example takes quite unusual camera mounting setup (90 degree offset and almost 7cm offset for the baseline). By using the UI, we can still get the correct extrisics easily. 
+
+Demo on the UI. Note that this example takes quite unusual camera mounting setup (90 degree offset and almost 7cm offset for the baseline). By using the UI, we can still get the correct extrisics easily.
 
 https://github.com/user-attachments/assets/3c807531-1c99-4d29-b73a-3dcdb802af7b
 
 ## Results in Rviz
+
 By using the calibrated extrinsic to colorized the point cloud produced by PMD Flexx2 ToF Camera with RGB colors from Intel Realsense D415.
 
 https://github.com/user-attachments/assets/023702e4-18d4-4df7-a245-437849693df9
