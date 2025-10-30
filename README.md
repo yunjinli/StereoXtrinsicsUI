@@ -84,6 +84,24 @@ Launch the container:
 
 CFG=./config/default.yaml IMG_DIR=~/Downloads/4/ docker compose up stereox-macwin
 ```
+### Step3: (Linux) Launch the app
+```bash
+CFG=./config/default.yaml IMG_DIR=~/Downloads/4/ docker compose up stereox-linux
+```
+### Step3: (Win) Launch the app
+- Step1: Install VcXsrv
+- Step2: Run XLaunch → Multiple windows, display number: 0 → Start no client → Disable access control
+
+```Powershell
+$env:CFG = "C:/Users/LiYunJ/git_repo/StereoXtrinsicsUI/config/default.yaml"
+$env:IMG_DIR = "C:/Users/LiYunJ/Downloads/4/"
+docker compose up stereox-macwin
+```
+### Step3: (Win/Linux/MacOS) Launch the app in browser
+```
+## After setting up the correct environemnt variable CFG and IMG_DIR
+docker compose up stereox-web
+```
 
 ## Demo
 
