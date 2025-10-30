@@ -85,6 +85,10 @@ Launch the container:
 CFG=./config/default.yaml IMG_DIR=~/Downloads/4/ docker compose up stereox-macwin
 ```
 ### Step3: (Linux) Launch the app
+If you have display issue, run:
+```bash
+xhost +si:localuser:root
+```
 ```bash
 CFG=./config/default.yaml IMG_DIR=~/Downloads/4/ docker compose up stereox-linux
 ```
