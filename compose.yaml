@@ -1,0 +1,40 @@
+services:
+  stereox-macwin:
+    image: stereox-ui:latest
+    command: ["python", "UI.py", "--config", "/app/config/default.yaml"]
+    environment:
+      DISPLAY: host.docker.internal:0
+      IMAGES_DIR: /app/data/images
+    volumes:
+      - ${CFG}:/app/config/default.yaml:ro
+      - ${IMG_DIR}:/app/data/images:ro
+    # profiles: ["x11-macwin"]  # <- only run if this profile is active
+
+  stereox-linux:
+    image: stereox-ui:latest
+    command: ["python", "UI.py", "--config", "/app/config/default.yaml"]
+    environment:
+      DISPLAY: ${DISPLAY:-:0}
+      IMAGES_DIR: /app/data/images
+    volumes:
+      - ${CFG}:/app/config/default.yaml:ro
+      - ${IMG_DIR}:/app/data/images:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    # profiles: ["x11-linux"]   # <- only run if this profile is active
+
+  stereox-web:
+    image: stereox-ui:latest
+    command: ["/usr/local/bin/start_web.sh"]
+    ports:
+      - "6080:6080"
+    environment:
+      IMAGES_DIR: /app/data/images
+      PYTHONUNBUFFERED: "1"
+      # Optional overrides:
+      # WEB_PORT: 6080
+      # RESOLUTION: 1600x900x24
+    volumes:
+      - ${CFG:-./config/default.yaml}:/app/config/default.yaml:ro
+      - ${IMG_DIR:-./data/images}:/app/data/images:ro
+    # profiles: ["webui"]
+

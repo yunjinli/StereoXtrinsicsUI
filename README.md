@@ -58,6 +58,51 @@ w1: 224
 python UI.py -W 1920 -H 1080 --config ./config/default.yaml
 ```
 
+## Docker
+
+### Step1: Build the image
+```
+docker build -f docker/Dockerfile -t stereox-ui:latest .
+```
+### Step2: Modify your default.yaml
+### Step3: (MacOS) Launch the app
+if you have display issue, this is how I solve it:
+- Step1: you have to properly set XQuartz → Preferences → Security to “Allow connections from network clients”
+- Step2: Enable indirect GLX (needed for OpenGL/GLUT over the network)
+```
+defaults write org.xquartz.X11 enable_iglx -bool true
+```
+- Step3: Quit and relaunch XQuartz
+- Step4: Allow connections from Docker’s VM subnet (Docker Desktop usually uses 192.168.65.0/24) and localhost:
+```
+xhost +localhost
+xhost + 192.168.65.0/24
+```
+Launch the container:
+```
+## Make sure to pass the correct host path to be mounted to the container
+
+CFG=./config/default.yaml IMG_DIR=~/Downloads/4/ docker compose up stereox-macwin
+```
+### Step3: (Linux) Launch the app
+```bash
+CFG=./config/default.yaml IMG_DIR=~/Downloads/4/ docker compose up stereox-linux
+```
+### Step3: (Win) Launch the app
+- Step1: Install VcXsrv
+- Step2: Run XLaunch → Multiple windows, display number: 0 → Start no client → Disable access control
+
+```Powershell
+$env:CFG = "C:/Users/LiYunJ/git_repo/StereoXtrinsicsUI/config/default.yaml"
+$env:IMG_DIR = "C:/Users/LiYunJ/Downloads/4/"
+docker compose up stereox-macwin
+```
+### Step3: (Win/Linux/MacOS) Launch the app in browser
+```
+## After setting up the correct environemnt variable CFG and IMG_DIR
+docker compose up stereox-web
+```
+
 ## Demo
 
 Demo on the UI. Note that this example takes quite unusual camera mounting setup (90 degree offset and almost 7cm offset for the baseline). By using the UI, we can still get the correct extrisics easily.

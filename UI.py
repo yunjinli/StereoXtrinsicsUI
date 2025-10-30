@@ -650,7 +650,7 @@ class CalibrationUI(tk.Tk):
         # print(self.img0.shape)
         # print(self.img1.shape)
         
-        self.header_raw_images_panel.configure(text=f"Raw Image Pairs {img_path_0.split('/')[-2:][0]}/{img_path_0.split('/')[-2:][1]} | {img_path_1.split('/')[-2:][0]}/{img_path_1.split('/')[-2:][1]})")
+        self.header_raw_images_panel.configure(text=f"Raw Image Pairs {img_path_0.split('/')[-2:][0]}/{img_path_0.split('/')[-2:][1]} | {img_path_1.split('/')[-2:][0]}/{img_path_1.split('/')[-2:][1]}")
         self.detect_corners()
         self.render()
         
