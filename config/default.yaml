@@ -1,7 +1,7 @@
-img_path: /home/yunjinli/camera_calibration/rel_calib_images/2
+img_path: ./data/images
 chessboard_size: [8, 6]
 square_size: 0.06
-cam_dict: { 0: "realsense", 1: "tof" }
+cam_dict: { 0: "RealSense D415", 1: "PMD Flexx2" }
 undistorted: False
 K0:
   [
